@@ -1,0 +1,5 @@
+{
+  "name": "JEWSCAN",
+  "description": "A Solana wallet scanner to determine your JEW status.",
+  "requestFramePermissions": []
+}
