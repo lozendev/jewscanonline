@@ -31,26 +31,39 @@
         ::-webkit-scrollbar-thumb { background: #CA8A04; border-radius: 4px; }
         .text-shadow { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8); }
         .text-shadow-lg { text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.9); }
+        #root { min-height: 100vh; background-color: black; }
     </style>
 </head>
 <body class="bg-black text-white antialiased overflow-x-hidden">
     <div id="root"></div>
 
     <script type="module">
-        import { h, Component, render } from 'https://esm.sh/preact';
-        import { useState, useEffect } from 'https://esm.sh/preact/hooks';
+        import { h, render } from 'https://esm.sh/preact';
+        import { useState } from 'https://esm.sh/preact/hooks';
         import htm from 'https://esm.sh/htm';
-        import { Copy, Check, Loader2, Search, AlertCircle } from 'https://esm.sh/lucide-react';
+        import { Copy, Check, Loader2, Search } from 'https://esm.sh/lucide-react?external=preact';
 
         const html = htm.bind(h);
         const CONTRACT_ADDRESS = "JEWSCAN88888888888888888888888888888888888";
 
-        const isValidSolanaAddress = (address) => {
-            return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
-        };
-
-        const Header = () => {
+        function App() {
+            const [wallet, setWallet] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
+            const [result, setResult] = useState(null);
             const [copied, setCopied] = useState(false);
+
+            const handleScan = (e) => {
+                e.preventDefault();
+                if (!wallet) return;
+                setIsLoading(true);
+                setResult(null);
+                setTimeout(() => {
+                    const options = ['Not a JEW', 'Defo NOT a JEW', 'JEW', 'Defo a JEW'];
+                    setResult(options[Math.floor(Math.random() * options.length)]);
+                    setIsLoading(false);
+                }, 2000);
+            };
+
             const handleCopy = () => {
                 navigator.clipboard.writeText(CONTRACT_ADDRESS);
                 setCopied(true);
@@ -58,88 +71,22 @@
             };
 
             return html`
-                <nav class="fixed top-0 left-0 w-full z-50 px-6 py-4 flex items-center justify-between bg-gradient-to-b from-black/80 to-transparent">
-                    <div class="w-auto md:w-32 flex justify-start">
-                        <div class="text-2xl md:text-3xl font-display font-black text-white tracking-widest text-shadow-lg border-b-2 border-gold-500 pb-1">
-                            JEWSCAN
-                        </div>
+                <div class="relative w-full h-screen overflow-hidden bg-black">
+                    <div class="absolute inset-0 bg-cover bg-center opacity-40" 
+                         style="background-image: url('https://i.postimg.cc/jdgxRKFv/freepik-create-a-older-jewish-character-looking-at-viewer-20787.jpg')">
                     </div>
-                    <div class="flex-1 flex justify-center md:flex-none">
-                        <button onClick=${handleCopy} class="group relative flex items-center gap-2 px-6 py-2 bg-black/60 backdrop-blur-md border border-gold-500/50 rounded-full text-gold-400 font-bold tracking-wider hover:bg-gold-500 hover:text-black transition-all duration-300">
-                            <span class="text-sm md:text-base">CA: updating</span>
-                            ${copied ? html`<${Check} size=${16} />` : html`<${Copy} size=${16} />`}
-                        </button>
-                    </div>
-                    <div class="hidden md:block w-32"></div>
-                </nav>
-            `;
-        };
+                    
+                    <div class="relative z-10 h-full flex flex-col">
+                        <nav class="p-6 flex justify-between items-center">
+                            <div class="text-2xl font-display font-bold text-gold-500">JEWSCAN</div>
+                            <button onClick=${handleCopy} class="px-4 py-2 border border-gold-500 rounded-full text-gold-400 text-sm flex gap-2 items-center">
+                                ${copied ? 'Copied!' : 'CA: Updating'} 
+                                <${copied ? Check : Copy} size=${14} />
+                            </button>
+                        </nav>
 
-        const ScanSection = () => {
-            const [walletAddress, setWalletAddress] = useState('');
-            const [isLoading, setIsLoading] = useState(false);
-            const [result, setResult] = useState(null);
-            const [error, setError] = useState(null);
-
-            const handleSubmit = (e) => {
-                e.preventDefault();
-                if (!walletAddress.trim()) return setError('Please enter a wallet address');
-                if (!isValidSolanaAddress(walletAddress)) return setError('Invalid Solana address');
-                
-                setIsLoading(true);
-                setResult(null);
-                setTimeout(() => {
-                    const results = ['Not a JEW', 'Defo NOT a JEW', 'JEW', 'Defo a JEW'];
-                    setResult(results[Math.floor(Math.random() * results.length)]);
-                    setIsLoading(false);
-                }, 2000);
-            };
-
-            return html`
-                <div class="w-full max-w-2xl mx-auto px-4 pb-12 flex flex-col items-center justify-end min-h-[60vh] gap-6">
-                    <div class="h-32 flex items-end justify-center w-full mb-4">
-                        ${isLoading ? html`
-                            <div class="flex flex-col items-center gap-2 animate-pulse">
-                                <${Loader2} class="w-12 h-12 text-gold-500 animate-spin" />
-                                <span class="text-gold-300 font-display text-xl">Scanning...</span>
-                            </div>
-                        ` : result ? html`
-                            <h1 class="text-4xl md:text-6xl font-display font-black text-center text-shadow-lg ${result.includes('Not') ? 'text-red-500' : 'text-gold-400'}">
-                                ${result}
-                            </h1>
-                        ` : null}
-                    </div>
-
-                    <form onSubmit=${handleSubmit} class="w-full relative group">
-                        <div class="relative flex flex-col md:flex-row gap-2 bg-black/80 backdrop-blur-xl p-2 rounded-xl border border-white/10">
-                            <input 
-                                type="text" 
-                                value=${walletAddress} 
-                                onInput=${(e) => setWalletAddress(e.target.value)}
-                                placeholder="Enter Solana Wallet" 
-                                class="flex-1 bg-transparent text-white px-4 py-3 outline-none"
-                            />
-                            <button type="submit" class="bg-gold-500 text-black font-bold px-8 py-3 rounded-lg">SCAN</button>
-                        </div>
-                        ${error && html`<p class="text-red-400 text-sm mt-2">${error}</p>`}
-                    </form>
-                </div>
-            `;
-        };
-
-        const App = () => html`
-            <div class="relative w-full h-screen overflow-hidden bg-black">
-                <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://i.postimg.cc/jdgxRKFv/freepik-create-a-older-jewish-character-looking-at-viewer-20787.jpg'); opacity: 0.4;"></div>
-                <div class="relative z-10 h-full flex flex-col">
-                    <${Header} />
-                    <main class="flex-1 flex flex-col justify-end pb-20">
-                        <${ScanSection} />
-                    </main>
-                </div>
-            </div>
-        `;
-
-        render(html`<${App} />`, document.getElementById('root'));
-    </script>
-</body>
-</html>
+                        <main class="flex-1 flex flex-col items-center justify-center px-4">
+                            <div class="mb-8 h-20 flex items-center justify-center">
+                                ${isLoading ? html`<${Loader2} class="animate-spin text-gold-500" size=${48} />` : 
+                                  result ? html`<h1 class="text-5xl font-display font-black text-center ${result.includes('Not') ? 'text-red-500' : 'text-gold-400'}">${result}</h1>` : 
+                                  html`<h2 class="text-gold-400 font-display text-xl text-center
