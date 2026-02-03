@@ -4,89 +4,103 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>JEWSCAN - Jew Scanner</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Cinzel', 'serif'],
-                    },
-                    colors: {
-                        gold: { 400: '#FACC15', 500: '#EAB308', 600: '#CA8A04' }
-                    }
-                }
-            }
-        }
-    </script>
-    
     <style>
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1f2937; }
-        ::-webkit-scrollbar-thumb { background: #CA8A04; border-radius: 4px; }
+        body { background-color: black; margin: 0; font-family: 'Inter', sans-serif; }
+        .font-display { font-family: 'Cinzel', serif; }
+        .text-gold { color: #EAB308; }
+        .bg-gold { background-color: #EAB308; }
         .text-shadow { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8); }
-        .text-shadow-lg { text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.9); }
-        #root { min-height: 100vh; background-color: black; }
+        /* Simple spinner animation */
+        .spinner {
+            border: 4px solid rgba(234, 179, 8, 0.3);
+            border-top: 4px solid #EAB308;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="bg-black text-white antialiased overflow-x-hidden">
-    <div id="root"></div>
+<body class="text-white antialiased overflow-hidden">
 
-    <script type="module">
-        import { h, render } from 'https://esm.sh/preact';
-        import { useState } from 'https://esm.sh/preact/hooks';
-        import htm from 'https://esm.sh/htm';
-        import { Copy, Check, Loader2, Search } from 'https://esm.sh/lucide-react?external=preact';
+    <div class="fixed inset-0 z-0">
+        <div class="absolute inset-0 bg-cover bg-center opacity-40" 
+             style="background-image: url('https://i.postimg.cc/jdgxRKFv/freepik-create-a-older-jewish-character-looking-at-viewer-20787.jpg')">
+        </div>
+        <div class="absolute inset-0 bg-black/60"></div>
+    </div>
 
-        const html = htm.bind(h);
+    <div class="relative z-10 h-screen flex flex-col">
+        <nav class="p-6 flex justify-between items-center">
+            <div class="text-2xl font-display font-black text-gold tracking-widest border-b-2 border-gold pb-1">JEWSCAN</div>
+            <button onclick="copyCA()" id="caButton" class="px-4 py-2 border border-gold/50 rounded-full text-gold text-sm font-bold bg-black/40 backdrop-blur-md">
+                CA: UPDATING
+            </button>
+        </nav>
+
+        <main class="flex-1 flex flex-col items-center justify-center px-4 mb-20">
+            <div id="statusArea" class="h-32 flex flex-col items-center justify-center mb-8">
+                <h2 class="text-gold font-display text-xl text-center text-shadow">Find out if a jew owns the wallet</h2>
+            </div>
+
+            <form onsubmit="handleScan(event)" class="w-full max-w-lg flex flex-col md:flex-row gap-2 bg-black/80 p-2 rounded-xl border border-white/10 backdrop-blur-xl">
+                <input 
+                    id="walletInput"
+                    type="text" 
+                    placeholder="Enter Solana Wallet Address" 
+                    class="flex-1 bg-transparent p-4 outline-none text-white font-mono text-sm"
+                    required
+                />
+                <button type="submit" class="bg-gold text-black font-bold px-8 py-4 rounded-lg hover:bg-yellow-500 transition-colors uppercase tracking-widest">
+                    SCAN
+                </button>
+            </form>
+            <p class="mt-4 text-white/40 text-xs">Satire application. Solana network only.</p>
+        </main>
+    </div>
+
+    <script>
         const CONTRACT_ADDRESS = "JEWSCAN88888888888888888888888888888888888";
 
-        function App() {
-            const [wallet, setWallet] = useState('');
-            const [isLoading, setIsLoading] = useState(false);
-            const [result, setResult] = useState(null);
-            const [copied, setCopied] = useState(false);
+        function copyCA() {
+            navigator.clipboard.writeText(CONTRACT_ADDRESS);
+            const btn = document.getElementById('caButton');
+            const originalText = btn.innerText;
+            btn.innerText = "COPIED!";
+            setTimeout(() => btn.innerText = originalText, 2000);
+        }
 
-            const handleScan = (e) => {
-                e.preventDefault();
-                if (!wallet) return;
-                setIsLoading(true);
-                setResult(null);
-                setTimeout(() => {
-                    const options = ['Not a JEW', 'Defo NOT a JEW', 'JEW', 'Defo a JEW'];
-                    setResult(options[Math.floor(Math.random() * options.length)]);
-                    setIsLoading(false);
-                }, 2000);
-            };
+        function handleScan(e) {
+            e.preventDefault();
+            const input = document.getElementById('walletInput').value;
+            const statusArea = document.getElementById('statusArea');
 
-            const handleCopy = () => {
-                navigator.clipboard.writeText(CONTRACT_ADDRESS);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
-            };
+            if (!input) return;
 
-            return html`
-                <div class="relative w-full h-screen overflow-hidden bg-black">
-                    <div class="absolute inset-0 bg-cover bg-center opacity-40" 
-                         style="background-image: url('https://i.postimg.cc/jdgxRKFv/freepik-create-a-older-jewish-character-looking-at-viewer-20787.jpg')">
-                    </div>
-                    
-                    <div class="relative z-10 h-full flex flex-col">
-                        <nav class="p-6 flex justify-between items-center">
-                            <div class="text-2xl font-display font-bold text-gold-500">JEWSCAN</div>
-                            <button onClick=${handleCopy} class="px-4 py-2 border border-gold-500 rounded-full text-gold-400 text-sm flex gap-2 items-center">
-                                ${copied ? 'Copied!' : 'CA: Updating'} 
-                                <${copied ? Check : Copy} size=${14} />
-                            </button>
-                        </nav>
+            // Show Loading State
+            statusArea.innerHTML = `
+                <div class="flex flex-col items-center gap-3">
+                    <div class="spinner"></div>
+                    <span class="text-gold font-display animate-pulse">SCANNING LEDGER...</span>
+                </div>
+            `;
 
-                        <main class="flex-1 flex flex-col items-center justify-center px-4">
-                            <div class="mb-8 h-20 flex items-center justify-center">
-                                ${isLoading ? html`<${Loader2} class="animate-spin text-gold-500" size=${48} />` : 
-                                  result ? html`<h1 class="text-5xl font-display font-black text-center ${result.includes('Not') ? 'text-red-500' : 'text-gold-400'}">${result}</h1>` : 
-                                  html`<h2 class="text-gold-400 font-display text-xl text-center
+            // Wait 2 seconds then show result
+            setTimeout(() => {
+                const results = ['JEW', 'Defo a JEW', 'Not a JEW', 'Defo NOT a JEW'];
+                const result = results[Math.floor(Math.random() * results.length)];
+                const isPositive = !result.includes('Not');
+                
+                statusArea.innerHTML = `
+                    <h1 class="text-5xl md:text-7xl font-display font-black text-center text-shadow-lg ${isPositive ? 'text-gold' : 'text-red-600'}">
+                        ${result}
+                    </h1>
+                `;
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
